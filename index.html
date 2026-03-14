@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OUTLIER — Daily Accountability</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #222222;
+  --border2: #2a2a2a;
+  --text: #f0ede8;
+  --muted: #666;
+  --dim: #333;
+  --green: #4ade80;
+  --green-dim: #1a3a25;
+  --blue: #60a5fa;
+  --blue-dim: #1a2a3a;
+  --amber: #fbbf24;
+  --amber-dim: #2a1f00;
+  --red: #f87171;
+  --red-dim: #2a1111;
+  --purple: #a78bfa;
+  --purple-dim: #1e1a2e;
+  --accent: #f0ede8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--text);
+}
+.logo span { color: var(--green); }
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.nav-tab {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  border: none;
+  background: transparent;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .03em;
+}
+.nav-tab.active {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.date-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* VIEWS */
+.view { display: none; padding: 20px; max-width: 480px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* QUOTE */
+.quote-block {
+  border-left: 2px solid var(--green);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+}
+.quote-text {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+}
+.quote-author {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* STREAK ROW */
+.streak-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.streak-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.streak-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.streak-num.green { color: var(--green); }
+.streak-num.blue { color: var(--blue); }
+.streak-num.amber { color: var(--amber); }
+.streak-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 2px;
+}
+
+/* PROGRESS BAR */
+.prog-wrap { margin-bottom: 18px; }
+.prog-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.prog-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.prog-pct { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--green); }
+.prog-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* SECTION LABEL */
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin: 18px 0 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* BLOCK ROWS */
+.block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.block.wme::before { background: var(--blue); }
+.block.body::before { background: var(--green); }
+.block.mind::before { background: var(--purple); }
+.block.fuel::before { background: var(--amber); }
+.block.admin::before { background: var(--dim); }
+
+.block.done {
+  border-color: var(--green-dim);
+  background: var(--green-dim);
+}
+.block.skipped {
+  border-color: var(--red-dim);
+  background: var(--red-dim);
+  opacity: .7;
+}
+.block.done .block-name { color: var(--green); }
+.block.skipped .block-name { color: var(--red); text-decoration: line-through; }
+
+.check-box {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  transition: all .2s;
+}
+.block.done .check-box { border-color: var(--green); background: var(--green); color: #000; }
+.block.skipped .check-box { border-color: var(--red); background: var(--red); color: #000; }
+
+.block-info { flex: 1; }
+.block-name { font-size: 13px; font-weight: 500; color: var(--text); transition: color .2s; }
+.block-time { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+.block-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 500;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.tag-wme { background: var(--blue-dim); color: var(--blue); }
+.tag-body { background: var(--green-dim); color: var(--green); }
+.tag-mind { background: var(--purple-dim); color: var(--purple); }
+.tag-fuel { background: var(--amber-dim); color: var(--amber); }
+
+.block-btns { display: flex; gap: 5px; }
+.btn-d, .btn-s {
+  font-size: 10px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all .15s;
+}
+.btn-d { border-color: var(--green); color: var(--green); background: transparent; }
+.btn-d:hover { background: var(--green); color: #000; }
+.btn-s { border-color: var(--red); color: var(--red); background: transparent; }
+.btn-s:hover { background: var(--red); color: #000; }
+
+/* WME QUESTIONS INPUT */
+.wme-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 8px 12px 8px 25px;
+  background: var(--blue-dim);
+  border-radius: 6px;
+  border: 1px solid #1a2a4a;
+}
+.wme-input-row label { font-size: 11px; color: var(--blue); flex: 1; }
+.wme-q-input {
+  width: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  text-align: center;
+}
+.wme-q-input:focus { outline: none; border-color: var(--blue); }
+.meal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 8px 12px 8px 25px;
+  background: var(--amber-dim);
+  border-radius: 6px;
+  border: 1px solid #3a2a00;
+}
+.meal-input-row label { font-size: 11px; color: var(--amber); flex: 1; }
+.meal-protein-input {
+  width: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  text-align: center;
+}
+.meal-protein-input:focus { outline: none; border-color: var(--amber); }
+
+
+/* NOTES */
+.note-area {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 70px;
+  margin-top: 4px;
+}
+.note-area:focus { outline: none; border-color: var(--border2); }
+.note-area::placeholder { color: var(--muted); }
+
+/* SAVE BUTTON */
+.save-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.save-btn:hover { background: #6ee7a0; }
+.save-btn:active { transform: scale(.98); }
+
+/* SUMMARY VIEW */
+.sum-header {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+.sum-header span { color: var(--green); }
+.sum-week-label { font-size: 12px; color: var(--muted); margin-bottom: 20px; font-family: 'DM Mono', monospace; }
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 18px;
+}
+.day-dot {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  cursor: default;
+}
+.day-dot.full { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.day-dot.partial { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.day-dot.miss { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.day-dot-label { font-size: 8px; margin-top: 2px; opacity: .7; }
+
+.sum-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.sum-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.sum-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.sum-stat-num.green { color: var(--green); }
+.sum-stat-num.blue { color: var(--blue); }
+.sum-stat-num.amber { color: var(--amber); }
+.sum-stat-num.red { color: var(--red); }
+.sum-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+.ai-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.ai-sum-header { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+.ai-sum-text { font-size: 13px; color: var(--text); line-height: 1.7; }
+.ai-sum-text .win { color: var(--green); font-weight: 500; }
+.ai-sum-text .improve { color: var(--amber); font-weight: 500; }
+.ai-sum-text .focus { color: var(--blue); font-weight: 500; }
+
+.gen-btn {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: all .2s;
+}
+.gen-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* HISTORY VIEW */
+.hist-day {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.hist-day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.hist-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); }
+.hist-score { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.hist-blocks { display: flex; gap: 4px; flex-wrap: wrap; }
+.hist-chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.hist-chip.done { background: var(--green-dim); color: var(--green); }
+.hist-chip.skip { background: var(--red-dim); color: var(--red); text-decoration: line-through; opacity: .6; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* CONFETTI */
+.confetti-piece {
+  position: fixed;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: fall 1.2s ease-in forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">OUT<span>LIER</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('today', event)" data-view="today">Today</button>
+    <button class="nav-tab" onclick="showView('summary', event)" data-view="summary">Week</button>
+    <button class="nav-tab" onclick="showView('history', event)" data-view="history">Log</button>
+  </div>
+  <div class="date-badge" id="nav-date"></div>
+</nav>
+
+<!-- TODAY VIEW -->
+<div class="view active" id="view-today">
+
+  <div class="quote-block">
+    <div class="quote-text" id="q-text"></div>
+    <div class="quote-author" id="q-author"></div>
+  </div>
+
+  <div class="streak-row">
+    <div class="streak-card">
+      <div class="streak-num green" id="s-streak">0</div>
+      <div class="streak-label">Day streak</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num blue" id="s-wme">0</div>
+      <div class="streak-label">WME blocks</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num amber" id="s-gym">0</div>
+      <div class="streak-label">Gym days</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num" style="color:var(--amber)" id="s-protein">0g</div>
+      <div class="streak-label">Protein today</div>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-top">
+      <span class="prog-title">Today's completion</span>
+      <span class="prog-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="section-label">— Morning</div>
+
+  <div class="block mind" id="b-wake">
+    <div class="check-box" id="cb-wake">—</div>
+    <div class="block-info">
+      <div class="block-name">Wake ritual — no phone <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">05:00 – 05:20</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wake','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wake','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block wme" id="b-wme1">
+    <div class="check-box" id="cb-wme1">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 1 — theory <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">05:20 – 06:20</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme1','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme1','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme1-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme1-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block body" id="b-gym">
+    <div class="check-box" id="cb-gym">—</div>
+    <div class="block-info">
+      <div class="block-name">Gym <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">06:30 – 07:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('gym','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('gym','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block fuel" id="b-breakfast">
+    <div class="check-box" id="cb-breakfast">—</div>
+    <div class="block-info">
+      <div class="block-name">Breakfast — high protein <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">07:30 – 08:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('breakfast','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('breakfast','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="breakfast-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="breakfast-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="section-label">— Deep work</div>
+
+  <div class="block wme" id="b-wme2">
+    <div class="check-box" id="cb-wme2">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 2 — deep study <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">09:00 – 11:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme2','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme2','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme2-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme2-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block wme" id="b-wme3">
+    <div class="check-box" id="cb-wme3">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 3 — practice questions <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">11:15 – 13:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme3','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme3','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme3-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme3-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block fuel" id="b-lunch">
+    <div class="check-box" id="cb-lunch">—</div>
+    <div class="block-info">
+      <div class="block-name">Lunch — whole food <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">13:15 – 13:45</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('lunch','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('lunch','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="lunch-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="lunch-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="block body" id="b-walk1">
+    <div class="check-box" id="cb-walk1">—</div>
+    <div class="block-info">
+      <div class="block-name">Post-lunch walk — no phone <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">13:45 – 14:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('walk1','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('walk1','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="section-label">— Afternoon</div>
+
+  <div class="block wme" id="b-wme4">
+    <div class="check-box" id="cb-wme4">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 4 — weak area repair <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">14:00 – 16:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme4','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme4','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme4-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme4-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block body" id="b-walk2">
+    <div class="check-box" id="cb-walk2">—</div>
+    <div class="block-info">
+      <div class="block-name">Evening walk / recovery <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">17:30 – 18:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('walk2','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('walk2','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block fuel" id="b-dinner">
+    <div class="check-box" id="cb-dinner">—</div>
+    <div class="block-info">
+      <div class="block-name">Dinner — no screen <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">18:30 – 19:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('dinner','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('dinner','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="dinner-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="dinner-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="section-label">— Evening</div>
+
+  <div class="block wme" id="b-wme5">
+    <div class="check-box" id="cb-wme5">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Evening review — consolidation <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">19:15 – 20:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme5','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme5','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block mind" id="b-plan">
+    <div class="check-box" id="cb-plan">—</div>
+    <div class="block-info">
+      <div class="block-name">Evening planning ritual <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">20:00 – 20:45</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('plan','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('plan','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block mind" id="b-sleep">
+    <div class="check-box" id="cb-sleep">—</div>
+    <div class="block-info">
+      <div class="block-name">Lights out — 21:30 <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">21:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('sleep','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('sleep','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="section-label">— Notes for today</div>
+  <textarea class="note-area" id="daily-note" placeholder="How did it go? What was hard? What did you learn?..." oninput="saveNote()"></textarea>
+
+  <button class="save-btn" onclick="saveDay()">LOCK IN TODAY</button>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div class="view" id="view-summary">
+  <div class="sum-header">WEEK <span id="sum-week-num">1</span></div>
+  <div class="sum-week-label" id="sum-week-range"></div>
+
+  <div class="week-grid" id="week-grid"></div>
+
+  <div class="sum-stat-grid">
+    <div class="sum-stat">
+      <div class="sum-stat-num green" id="sum-days-perfect">0</div>
+      <div class="sum-stat-label">Perfect days</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num blue" id="sum-wme-q">0</div>
+      <div class="sum-stat-label">WME questions</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num amber" id="sum-gym-days">0</div>
+      <div class="sum-stat-label">Gym sessions</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num red" id="sum-skips">0</div>
+      <div class="sum-stat-label">Blocks skipped</div>
+    </div>
+    <div class="sum-stat" style="grid-column: span 2">
+      <div class="sum-stat-num" style="color:var(--amber)" id="sum-protein">0g</div>
+      <div class="sum-stat-label">Total protein logged this week</div>
+    </div>
+  </div>
+
+  <div class="ai-summary-card" id="ai-card" style="display:none">
+    <div class="ai-sum-header">— Weekly intelligence report</div>
+    <div class="ai-sum-text" id="ai-text"></div>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generateSummary()">Generate weekly AI summary →</button>
+</div>
+
+<!-- HISTORY VIEW -->
+<div class="view" id="view-history">
+  <div class="section-label" style="margin-top:4px">— Full log</div>
+  <div id="history-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BLOCKS = ['wake','wme1','gym','breakfast','wme2','wme3','lunch','walk1','wme4','walk2','dinner','wme5','plan','sleep'];
+const WME_BLOCKS = ['wme1','wme2','wme3','wme4','wme5'];
+const MEAL_BLOCKS = ['breakfast','lunch','dinner'];
+const BLOCK_NAMES = {
+  wake:'Wake ritual', wme1:'WME Block 1', gym:'Gym', breakfast:'Breakfast',
+  wme2:'WME Block 2', wme3:'WME Block 3', lunch:'Lunch', walk1:'Lunch walk',
+  wme4:'WME Block 4', walk2:'Evening walk', dinner:'Dinner', wme5:'WME Evening',
+  plan:'Evening planning', sleep:'Lights out'
+};
+
+const QUOTES = [
+  {t:"The man who moves a mountain begins by carrying away small stones.", a:"Confucius"},
+  {t:"You will never always be motivated. You have to learn to be disciplined.", a:"Unknown"},
+  {t:"Don't count the days. Make the days count.", a:"Muhammad Ali"},
+  {t:"Success is the sum of small efforts repeated day in and day out.", a:"Robert Collier"},
+  {t:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a:"Aristotle"},
+  {t:"The secret of getting ahead is getting started.", a:"Mark Twain"},
+  {t:"Hard choices, easy life. Easy choices, hard life.", a:"Jerzy Gregorek"},
+  {t:"You don't rise to the level of your goals. You fall to the level of your systems.", a:"James Clear"},
+  {t:"Suffer the pain of discipline or suffer the pain of regret.", a:"Jim Rohn"},
+  {t:"Discipline is choosing between what you want now and what you want most.", a:"Abraham Lincoln"},
+  {t:"Do something today that your future self will thank you for.", a:"Sean Patrick Flanery"},
+  {t:"Pain is temporary. Quitting lasts forever.", a:"Lance Armstrong"},
+  {t:"What you do every day matters more than what you do once in a while.", a:"Gretchen Rubin"},
+  {t:"Work hard in silence. Let success make the noise.", a:"Frank Ocean"},
+  {t:"Motivation gets you started. Habit keeps you going.", a:"Jim Ryun"},
+  {t:"Every day is a new opportunity to become better than yesterday.", a:"Unknown"},
+  {t:"Don't stop when you're tired. Stop when you're done.", a:"Unknown"},
+  {t:"The difference between ordinary and extraordinary is that little extra.", a:"Jimmy Johnson"},
+  {t:"Push yourself because no one else is going to do it for you.", a:"Unknown"},
+  {t:"Your future is created by what you do today, not tomorrow.", a:"Robert Kiyosaki"},
+  {t:"Discipline is the bridge between goals and accomplishment.", a:"Jim Rohn"},
+  {t:"It always seems impossible until it's done.", a:"Nelson Mandela"},
+  {t:"Be the person you needed when you were younger.", a:"Unknown"},
+  {t:"You are one decision away from a completely different life.", a:"Unknown"},
+  {t:"Average is a choice. Outlier is a commitment.", a:"Unknown"},
+  {t:"Stop outsourcing your identity to other people's opinions.", a:"Casey Zander"},
+  {t:"Your environment is your mind made visible.", a:"Unknown"},
+  {t:"Never use credit to fund lifestyle.", a:"Unknown"},
+  {t:"Compounding only works if you don't withdraw from the account.", a:"Elon Musk"},
+  {t:"The man who reads 30 minutes a day lives in a different cognitive universe.", a:"Unknown"}
+];
+
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function getState() {
+  const raw = localStorage.getItem('outlier_' + todayKey());
+  return raw ? JSON.parse(raw) : { blocks: {}, qcounts: {}, mealdata: {}, note: '', dateKey: todayKey() };
+}
+
+function saveState(st) {
+  localStorage.setItem('outlier_' + todayKey(), JSON.stringify(st));
+}
+
+function getAllDays() {
+  const days = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('outlier_')) {
+      const date = k.replace('outlier_', '');
+      try { days.push({ date, data: JSON.parse(localStorage.getItem(k)) }); } catch(e) {}
+    }
+  }
+  return days.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function getThisWeekDays() {
+  const all = getAllDays();
+  const now = new Date();
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  monday.setHours(0, 0, 0, 0);
+  return all.filter(d => {
+    const parts = d.date.split('-');
+    const dd = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    return dd >= monday;
+  });
+}
+
+function calcStreak() {
+  const days = getAllDays();
+  let streak = 0;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  let cursor = new Date(now);
+  for (const d of days) {
+    const parts = d.date.split('-');
+    const dd = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    const diff = Math.round((cursor - dd) / 86400000);
+    if (diff > 1) break;
+    const done = Object.values(d.data.blocks).filter(v => v === 'done').length;
+    if (done >= Math.floor(BLOCKS.length * 0.5)) { streak++; cursor = dd; }
+    else break;
+  }
+  return streak;
+}
+
+let todayState = getState();
+
+function setBlock(id, status) {
+  todayState = getState();
+  todayState.blocks[id] = todayState.blocks[id] === status ? null : status;
+  saveState(todayState);
+  renderToday();
+  if (todayState.blocks[id] === 'done') confetti();
+}
+
+function saveNote() {
+  todayState = getState();
+  todayState.note = document.getElementById('daily-note').value;
+  saveState(todayState);
+}
+
+function saveMealData() {
+  todayState = getState();
+  if (!todayState.mealdata) todayState.mealdata = {};
+  ['breakfast', 'lunch', 'dinner'].forEach(function(m) {
+    const el = document.getElementById(m + '-protein');
+    if (el) todayState.mealdata[m] = parseInt(el.value) || 0;
+  });
+  saveState(todayState);
+}
+
+function saveQCount() {
+  todayState = getState();
+  WME_BLOCKS.forEach(function(wb) {
+    const el = document.getElementById(wb + '-count');
+    if (el) todayState.qcounts[wb] = parseInt(el.value) || 0;
+  });
+  saveState(todayState);
+}
+
+function renderToday() {
+  todayState = getState();
+  const blocks = todayState.blocks;
+  let done = 0;
+  BLOCKS.forEach(function(id) {
+    const status = blocks[id] || 'none';
+    const row = document.getElementById('b-' + id);
+    const cb = document.getElementById('cb-' + id);
+    if (!row) return;
+    row.className = row.className.replace(/\s*(done|skipped)/g, '');
+    if (status === 'done') { row.classList.add('done'); cb.textContent = '\u2713'; done++; }
+    else if (status === 'skipped') { row.classList.add('skipped'); cb.textContent = '\u2717'; }
+    else { cb.textContent = '\u2014'; }
+    if (WME_BLOCKS.includes(id)) {
+      const qrow = document.getElementById(id + '-q');
+      if (qrow) qrow.style.display = status === 'done' ? 'flex' : 'none';
+      const qinput = document.getElementById(id + '-count');
+      if (qinput && todayState.qcounts && todayState.qcounts[id]) qinput.value = todayState.qcounts[id];
+    }
+  });
+  const pct = Math.round((done / BLOCKS.length) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('s-streak').textContent = calcStreak();
+  const wmeTotal = getAllDays().reduce(function(acc, d) {
+    return acc + WME_BLOCKS.filter(function(wb) { return d.data.blocks[wb] === 'done'; }).length;
+  }, 0);
+  document.getElementById('s-wme').textContent = wmeTotal;
+  const gymDaysWeek = getThisWeekDays().filter(function(d) { return d.data.blocks['gym'] === 'done'; }).length;
+  document.getElementById('s-gym').textContent = gymDaysWeek;
+  if (todayState.note) document.getElementById('daily-note').value = todayState.note;
+  ['breakfast', 'lunch', 'dinner'].forEach(function(m) {
+    const prow = document.getElementById(m + '-p');
+    const pinput = document.getElementById(m + '-protein');
+    if (prow) prow.style.display = (blocks[m] === 'done') ? 'flex' : 'none';
+    if (pinput && todayState.mealdata && todayState.mealdata[m]) pinput.value = todayState.mealdata[m];
+  });
+  const totalP = ['breakfast', 'lunch', 'dinner'].reduce(function(a, m) {
+    return a + ((todayState.mealdata && todayState.mealdata[m]) ? todayState.mealdata[m] : 0);
+  }, 0);
+  const protEl = document.getElementById('s-protein');
+  if (protEl) protEl.textContent = totalP + 'g';
+}
+
+function saveDay() {
+  todayState = getState();
+  todayState.savedAt = new Date().toISOString();
+  todayState.dateKey = todayKey();
+  saveState(todayState);
+  const done = Object.values(todayState.blocks).filter(function(v) { return v === 'done'; }).length;
+  const pct = Math.round((done / BLOCKS.length) * 100);
+  var msg = pct >= 80 ? 'Beast mode. ' + pct + '% locked in.' : pct >= 50 ? 'Day saved. ' + pct + '% done. Push more tomorrow.' : 'Saved. Tomorrow is a fresh start.';
+  showToast(msg);
+  if (pct === 100) confetti(true);
+}
+
+function confetti(big) {
+  const colors = ['#4ade80', '#60a5fa', '#fbbf24', '#a78bfa', '#f87171', '#f0ede8'];
+  const count = big ? 60 : 12;
+  for (let i = 0; i < count; i++) {
+    setTimeout(function() {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = 'left:' + (Math.random() * 100) + 'vw;top:0;background:' + colors[Math.floor(Math.random() * colors.length)] + ';animation-delay:' + (Math.random() * 0.5) + 's;animation-duration:' + (0.8 + Math.random() * 0.8) + 's;transform:rotate(' + (Math.random() * 360) + 'deg)';
+      document.body.appendChild(el);
+      setTimeout(function() { el.remove(); }, 2000);
+    }, i * 30);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+function renderSummary() {
+  const weekDays = getThisWeekDays();
+  const now = new Date();
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  monday.setHours(0, 0, 0, 0);
+  const weekNum = Math.ceil((Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 86400000) + 1) / 7);
+  document.getElementById('sum-week-num').textContent = weekNum;
+  const fmt = function(d) { return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }); };
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  document.getElementById('sum-week-range').textContent = fmt(monday) + ' to ' + fmt(sunday);
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  const days7 = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+    const key = y + '-' + mo + '-' + da;
+    const raw = localStorage.getItem('outlier_' + key);
+    const dot = document.createElement('div');
+    dot.className = 'day-dot';
+    if (raw) {
+      const data = JSON.parse(raw);
+      const doneCount = Object.values(data.blocks).filter(function(v) { return v === 'done'; }).length;
+      const p = doneCount / BLOCKS.length;
+      dot.classList.add(p >= 0.8 ? 'full' : p >= 0.4 ? 'partial' : 'miss');
+      dot.innerHTML = '<span>' + days7[i] + '</span><span class="day-dot-label">' + Math.round(p * 100) + '%</span>';
+    } else {
+      dot.innerHTML = '<span>' + days7[i] + '</span><span class="day-dot-label">--</span>';
+    }
+    grid.appendChild(dot);
+  }
+  let totalQ = 0, gymDays = 0, skips = 0, perfectDays = 0;
+  weekDays.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    skips += Object.values(d.data.blocks).filter(function(v) { return v === 'skipped'; }).length;
+    if (doneCount / BLOCKS.length >= 0.9) perfectDays++;
+    WME_BLOCKS.forEach(function(wb) { totalQ += (d.data.qcounts && d.data.qcounts[wb]) ? parseInt(d.data.qcounts[wb]) : 0; });
+    if (d.data.blocks['gym'] === 'done') gymDays++;
+  });
+  document.getElementById('sum-days-perfect').textContent = perfectDays;
+  document.getElementById('sum-wme-q').textContent = totalQ;
+  document.getElementById('sum-gym-days').textContent = gymDays;
+  document.getElementById('sum-skips').textContent = skips;
+  const totalProt = weekDays.reduce(function(a, d) {
+    return a + ['breakfast','lunch','dinner'].reduce(function(b, m) {
+      return b + ((d.data.mealdata && d.data.mealdata[m]) ? d.data.mealdata[m] : 0);
+    }, 0);
+  }, 0);
+  const protEl = document.getElementById('sum-protein');
+  if (protEl) protEl.textContent = totalProt + 'g';
+}
+
+function generateSummary() {
+  const btn = document.getElementById('gen-btn');
+  const weekDays = getThisWeekDays();
+  let totalQ = 0, gymDays = 0, skips = 0, perfectDays = 0;
+  const skippedBlocks = {};
+  const notes = [];
+  weekDays.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    skips += Object.values(d.data.blocks).filter(function(v) { return v === 'skipped'; }).length;
+    if (doneCount / BLOCKS.length >= 0.9) perfectDays++;
+    WME_BLOCKS.forEach(function(wb) { totalQ += (d.data.qcounts && d.data.qcounts[wb]) ? parseInt(d.data.qcounts[wb]) : 0; });
+    if (d.data.blocks['gym'] === 'done') gymDays++;
+    Object.keys(d.data.blocks).forEach(function(k) {
+      if (d.data.blocks[k] === 'skipped') skippedBlocks[k] = (skippedBlocks[k] || 0) + 1;
+    });
+    if (d.data.note) notes.push(d.date + ': ' + d.data.note);
+  });
+  const mostSkipped = Object.keys(skippedBlocks).sort(function(a,b){ return skippedBlocks[b]-skippedBlocks[a]; }).slice(0,2).map(function(k){ return BLOCK_NAMES[k] + ' (' + skippedBlocks[k] + 'x)'; }).join(', ') || 'none';
+  const avgP = Math.round(weekDays.reduce(function(a,d){ return a + ['breakfast','lunch','dinner'].reduce(function(b,m){ return b+((d.data.mealdata&&d.data.mealdata[m])?d.data.mealdata[m]:0);},0);},0) / Math.max(weekDays.length,1));
+  const wins = [];
+  if (gymDays >= 5) wins.push('Gym ' + gymDays + '/7 sessions — serious consistency');
+  else if (gymDays >= 3) wins.push('Gym ' + gymDays + ' days — showing up when it counts');
+  if (perfectDays >= 3) wins.push(perfectDays + ' perfect days — compound momentum building');
+  if (totalQ >= 100) wins.push(totalQ + ' WME questions — you are in the reps');
+  else if (totalQ >= 40) wins.push(totalQ + ' WME questions done this week');
+  if (avgP >= 120) wins.push('Protein averaging ' + avgP + 'g — fuelling the machine');
+  if (weekDays.length >= 5) wins.push(weekDays.length + ' days logged — the habit is forming');
+  if (notes.length >= 3) wins.push('Daily reflection active — self-awareness compounding');
+  const wellText = wins.length > 0 ? wins.slice(0,2).join('. ') + '.' : 'First data in the system. Every block logged is a deposit into your future.';
+  const gaps = [];
+  if (gymDays < 4) gaps.push('Gym at ' + gymDays + '/7 — target 5 minimum');
+  if (totalQ < 40) gaps.push('WME questions at ' + totalQ + ' — need 40+ per session every session');
+  if (skips > 6) gaps.push(skips + ' blocks skipped — skips are withdrawn time');
+  if (avgP > 0 && avgP < 100) gaps.push('Protein at ' + avgP + 'g avg — push toward 150g+');
+  if (mostSkipped !== 'none') gaps.push('Pattern skip: ' + mostSkipped);
+  if (perfectDays === 0) gaps.push('No perfect days yet — one perfect day this week is the target');
+  const improveText = gaps.length > 0 ? gaps.slice(0,2).join('. ') + '.' : 'Solid foundation. Raise the floor now — fewer skips, more complete days.';
+  var focusText = '';
+  if (totalQ < 100) focusText = 'Hit 40 WME questions minimum every single study session — no exceptions.';
+  else if (gymDays < 5) focusText = 'Get to gym 5 days — pre-commit tonight by writing which days and what time.';
+  else if (skips > 5) focusText = 'Cut skips in half — decide the night before, not in the moment.';
+  else focusText = 'Stack one more perfect day — all blocks done, notes written, locked in by 21:30.';
+  document.getElementById('ai-text').innerHTML =
+    '<span class="win">WHAT WENT WELL:</span> ' + wellText + '<br><br>' +
+    '<span class="improve">WHAT TO IMPROVE:</span> ' + improveText + '<br><br>' +
+    '<span class="focus">THIS WEEKS FOCUS:</span> ' + focusText;
+  document.getElementById('ai-card').style.display = 'block';
+  btn.textContent = 'Refresh summary';
+  confetti();
+}
+
+function renderHistory() {
+  const all = getAllDays();
+  const list = document.getElementById('history-list');
+  if (!all.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">o</div>No days logged yet. Start today.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  all.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    const pct = Math.round((doneCount / BLOCKS.length) * 100);
+    const color = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
+    const parts = d.date.split('-');
+    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    const dateStr = dateObj.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+    const chips = BLOCKS.map(function(id) {
+      const st = d.data.blocks[id];
+      if (!st) return '';
+      return '<span class="hist-chip ' + (st === 'done' ? 'done' : 'skip') + '">' + BLOCK_NAMES[id].split(' ')[0] + '</span>';
+    }).join('');
+    const qTotal = WME_BLOCKS.reduce(function(a,wb){ return a+((d.data.qcounts&&d.data.qcounts[wb])?parseInt(d.data.qcounts[wb]):0);},0);
+    const noteSnip = d.data.note ? '<div style="margin-top:6px;font-size:12px;color:var(--muted);font-style:italic">"' + d.data.note.slice(0,100) + (d.data.note.length>100?'...':'') + '"</div>' : '';
+    const qLine = qTotal > 0 ? '<div style="margin-top:6px;font-size:11px;color:var(--blue);font-family:DM Mono,monospace">' + qTotal + ' WME questions</div>' : '';
+    list.innerHTML += '<div class="hist-day"><div class="hist-day-header"><div class="hist-date">' + dateStr + '</div><div class="hist-score ' + color + '">' + pct + '%</div></div><div class="hist-blocks">' + chips + '</div>' + qLine + noteSnip + '</div>';
+  });
+}
+
+function showView(v, evt) {
+  document.querySelectorAll('.view').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('view-' + v).classList.add('active');
+  if (evt && evt.target) evt.target.classList.add('active');
+  if (v === 'summary') renderSummary();
+  if (v === 'history') renderHistory();
+}
+
+function init() {
+  const now = new Date();
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const monNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('nav-date').textContent = dayNames[now.getDay()] + ', ' + monNames[now.getMonth()] + ' ' + now.getDate();
+  const qIndex = now.getDate() % QUOTES.length;
+  document.getElementById('q-text').textContent = QUOTES[qIndex].t;
+  document.getElementById('q-author').textContent = '-- ' + QUOTES[qIndex].a;
+  renderToday();
+}
+
+init();
+</script>
+</body>
+</html>
