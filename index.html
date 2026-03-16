@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OUTLIER — Daily Accountability</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #222222;
+  --border2: #2a2a2a;
+  --text: #f0ede8;
+  --muted: #666;
+  --dim: #333;
+  --green: #4ade80;
+  --green-dim: #1a3a25;
+  --blue: #60a5fa;
+  --blue-dim: #1a2a3a;
+  --amber: #fbbf24;
+  --amber-dim: #2a1f00;
+  --red: #f87171;
+  --red-dim: #2a1111;
+  --purple: #a78bfa;
+  --purple-dim: #1e1a2e;
+  --accent: #f0ede8;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* NAV */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--text);
+}
+.logo span { color: var(--green); }
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.nav-tab {
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--muted);
+  border: none;
+  background: transparent;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: .03em;
+}
+.nav-tab.active {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+}
+.date-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* VIEWS */
+.view { display: none; padding: 20px; max-width: 480px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* QUOTE */
+.quote-block {
+  border-left: 2px solid var(--green);
+  padding: 10px 14px;
+  margin-bottom: 20px;
+  background: var(--surface);
+  border-radius: 0 6px 6px 0;
+}
+.quote-text {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.6;
+}
+.quote-author {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+/* STREAK ROW */
+.streak-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.streak-card {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: center;
+}
+.streak-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.streak-num.green { color: var(--green); }
+.streak-num.blue { color: var(--blue); }
+.streak-num.amber { color: var(--amber); }
+.streak-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 2px;
+}
+
+/* PROGRESS BAR */
+.prog-wrap { margin-bottom: 18px; }
+.prog-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.prog-title { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.prog-pct { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--green); }
+.prog-bar { height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+/* SECTION LABEL */
+.section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+  margin: 18px 0 8px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* BLOCK ROWS */
+.block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 5px;
+  transition: all .2s;
+  position: relative;
+  overflow: hidden;
+}
+.block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+}
+.block.wme::before { background: var(--blue); }
+.block.body::before { background: var(--green); }
+.block.mind::before { background: var(--purple); }
+.block.fuel::before { background: var(--amber); }
+.block.admin::before { background: var(--dim); }
+
+.block.done {
+  border-color: var(--green-dim);
+  background: var(--green-dim);
+}
+.block.skipped {
+  border-color: var(--red-dim);
+  background: var(--red-dim);
+  opacity: .7;
+}
+.block.done .block-name { color: var(--green); }
+.block.skipped .block-name { color: var(--red); text-decoration: line-through; }
+
+.check-box {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 10px;
+  transition: all .2s;
+}
+.block.done .check-box { border-color: var(--green); background: var(--green); color: #000; }
+.block.skipped .check-box { border-color: var(--red); background: var(--red); color: #000; }
+
+.block-info { flex: 1; }
+.block-name { font-size: 13px; font-weight: 500; color: var(--text); transition: color .2s; }
+.block-time { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 1px; }
+.block-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 500;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.tag-wme { background: var(--blue-dim); color: var(--blue); }
+.tag-body { background: var(--green-dim); color: var(--green); }
+.tag-mind { background: var(--purple-dim); color: var(--purple); }
+.tag-fuel { background: var(--amber-dim); color: var(--amber); }
+
+.block-btns { display: flex; gap: 5px; }
+.btn-d, .btn-s {
+  font-size: 10px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  border: 1px solid;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all .15s;
+}
+.btn-d { border-color: var(--green); color: var(--green); background: transparent; }
+.btn-d:hover { background: var(--green); color: #000; }
+.btn-s { border-color: var(--red); color: var(--red); background: transparent; }
+.btn-s:hover { background: var(--red); color: #000; }
+
+/* WME QUESTIONS INPUT */
+.wme-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 8px 12px 8px 25px;
+  background: var(--blue-dim);
+  border-radius: 6px;
+  border: 1px solid #1a2a4a;
+}
+.wme-input-row label { font-size: 11px; color: var(--blue); flex: 1; }
+.wme-q-input {
+  width: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  text-align: center;
+}
+.wme-q-input:focus { outline: none; border-color: var(--blue); }
+.meal-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 8px 12px 8px 25px;
+  background: var(--amber-dim);
+  border-radius: 6px;
+  border: 1px solid #3a2a00;
+}
+.meal-input-row label { font-size: 11px; color: var(--amber); flex: 1; }
+.meal-protein-input {
+  width: 60px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  padding: 4px 8px;
+  text-align: center;
+}
+.meal-protein-input:focus { outline: none; border-color: var(--amber); }
+
+
+/* NOTES */
+.note-area {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 70px;
+  margin-top: 4px;
+}
+.note-area:focus { outline: none; border-color: var(--border2); }
+.note-area::placeholder { color: var(--muted); }
+
+/* SAVE BUTTON */
+.save-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--green);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.save-btn:hover { background: #6ee7a0; }
+.save-btn:active { transform: scale(.98); }
+
+/* SUMMARY VIEW */
+.sum-header {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  letter-spacing: 3px;
+  margin-bottom: 4px;
+}
+.sum-header span { color: var(--green); }
+.sum-week-label { font-size: 12px; color: var(--muted); margin-bottom: 20px; font-family: 'DM Mono', monospace; }
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 18px;
+}
+.day-dot {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 9px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  cursor: default;
+}
+.day-dot.full { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.day-dot.partial { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.day-dot.miss { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+.day-dot-label { font-size: 8px; margin-top: 2px; opacity: .7; }
+
+.sum-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.sum-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.sum-stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.sum-stat-num.green { color: var(--green); }
+.sum-stat-num.blue { color: var(--blue); }
+.sum-stat-num.amber { color: var(--amber); }
+.sum-stat-num.red { color: var(--red); }
+.sum-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+.ai-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.ai-sum-header { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 10px; font-family: 'DM Mono', monospace; }
+.ai-sum-text { font-size: 13px; color: var(--text); line-height: 1.7; }
+.ai-sum-text .win { color: var(--green); font-weight: 500; }
+.ai-sum-text .improve { color: var(--amber); font-weight: 500; }
+.ai-sum-text .focus { color: var(--blue); font-weight: 500; }
+
+.gen-btn {
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: all .2s;
+}
+.gen-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* HISTORY VIEW */
+.hist-day {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.hist-day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.hist-date { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); }
+.hist-score { font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+.hist-blocks { display: flex; gap: 4px; flex-wrap: wrap; }
+.hist-chip {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.hist-chip.done { background: var(--green-dim); color: var(--green); }
+.hist-chip.skip { background: var(--red-dim); color: var(--red); text-decoration: line-through; opacity: .6; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  z-index: 999;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* CONFETTI */
+.confetti-piece {
+  position: fixed;
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: fall 1.2s ease-in forwards;
+}
+@keyframes fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 10px; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="logo">OUT<span>LIER</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('today', event)" data-view="today">Today</button>
+    <button class="nav-tab" onclick="showView('summary', event)" data-view="summary">Week</button>
+    <button class="nav-tab" onclick="showView('calendar', event)" data-view="calendar">Calendar</button>
+    <button class="nav-tab" onclick="showView('history', event)" data-view="history">Log</button>
+  </div>
+  <div class="date-badge" id="nav-date"></div>
+</nav>
+
+<!-- TODAY VIEW -->
+<div class="view active" id="view-today">
+
+  <div class="quote-block">
+    <div class="quote-text" id="q-text"></div>
+    <div class="quote-author" id="q-author"></div>
+  </div>
+
+  <div id="yesterday-card" style="display:none;margin-bottom:14px;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;" id="ycard-date">— Yesterday</div>
+    <div id="ycard-body" style="font-size:13px;color:var(--text);line-height:1.8;"></div>
+  </div>
+
+  <div class="streak-row">
+    <div class="streak-card">
+      <div class="streak-num green" id="s-streak">0</div>
+      <div class="streak-label">Day streak</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num blue" id="s-wme">0</div>
+      <div class="streak-label">WME blocks</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num amber" id="s-gym">0</div>
+      <div class="streak-label">Gym days</div>
+    </div>
+    <div class="streak-card">
+      <div class="streak-num" style="color:var(--amber)" id="s-protein">0g</div>
+      <div class="streak-label">Protein today</div>
+    </div>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-top">
+      <span class="prog-title">Today's completion</span>
+      <span class="prog-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="section-label">— Morning</div>
+
+  <div class="block mind" id="b-wake">
+    <div class="check-box" id="cb-wake">—</div>
+    <div class="block-info">
+      <div class="block-name">Wake ritual — no phone <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">05:00 – 05:20</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wake','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wake','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block wme" id="b-wme1">
+    <div class="check-box" id="cb-wme1">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 1 — theory <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">05:20 – 06:20</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme1','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme1','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme1-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme1-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block body" id="b-gym">
+    <div class="check-box" id="cb-gym">—</div>
+    <div class="block-info">
+      <div class="block-name">Gym <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">06:30 – 07:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('gym','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('gym','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block fuel" id="b-breakfast">
+    <div class="check-box" id="cb-breakfast">—</div>
+    <div class="block-info">
+      <div class="block-name">Breakfast — high protein <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">07:30 – 08:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('breakfast','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('breakfast','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="breakfast-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="breakfast-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="section-label">— Deep work</div>
+
+  <div class="block wme" id="b-wme2">
+    <div class="check-box" id="cb-wme2">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 2 — deep study <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">09:00 – 11:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme2','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme2','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme2-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme2-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block wme" id="b-wme3">
+    <div class="check-box" id="cb-wme3">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 3 — practice questions <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">11:15 – 13:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme3','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme3','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme3-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme3-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block fuel" id="b-lunch">
+    <div class="check-box" id="cb-lunch">—</div>
+    <div class="block-info">
+      <div class="block-name">Lunch — whole food <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">13:15 – 13:45</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('lunch','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('lunch','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="lunch-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="lunch-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="block body" id="b-walk1">
+    <div class="check-box" id="cb-walk1">—</div>
+    <div class="block-info">
+      <div class="block-name">Post-lunch walk — no phone <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">13:45 – 14:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('walk1','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('walk1','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="section-label">— Afternoon</div>
+
+  <div class="block wme" id="b-wme4">
+    <div class="check-box" id="cb-wme4">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Block 4 — weak area repair <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">14:00 – 16:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme4','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme4','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="wme-input-row" id="wme4-q" style="display:none">
+    <label>Questions done</label>
+    <input type="number" class="wme-q-input" id="wme4-count" min="0" placeholder="0" oninput="saveQCount()">
+  </div>
+
+  <div class="block body" id="b-walk2">
+    <div class="check-box" id="cb-walk2">—</div>
+    <div class="block-info">
+      <div class="block-name">Evening walk / recovery <span class="block-tag tag-body">body</span></div>
+      <div class="block-time">17:30 – 18:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('walk2','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('walk2','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block fuel" id="b-dinner">
+    <div class="check-box" id="cb-dinner">—</div>
+    <div class="block-info">
+      <div class="block-name">Dinner — no screen <span class="block-tag tag-fuel">fuel</span></div>
+      <div class="block-time">18:30 – 19:15</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('dinner','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('dinner','skipped')">✗</button>
+    </div>
+  </div>
+  <div class="meal-input-row" id="dinner-p" style="display:none">
+    <label>Protein (g)</label>
+    <input type="number" class="meal-protein-input" id="dinner-protein" min="0" placeholder="0g" oninput="saveMealData()">
+  </div>
+
+  <div class="section-label">— Evening</div>
+
+  <div class="block wme" id="b-wme5">
+    <div class="check-box" id="cb-wme5">—</div>
+    <div class="block-info">
+      <div class="block-name">WME Evening review — consolidation <span class="block-tag tag-wme">WME</span></div>
+      <div class="block-time">19:15 – 20:00</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('wme5','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('wme5','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block mind" id="b-plan">
+    <div class="check-box" id="cb-plan">—</div>
+    <div class="block-info">
+      <div class="block-name">Evening planning ritual <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">20:00 – 20:45</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('plan','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('plan','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="block mind" id="b-sleep">
+    <div class="check-box" id="cb-sleep">—</div>
+    <div class="block-info">
+      <div class="block-name">Lights out — 21:30 <span class="block-tag tag-mind">mindset</span></div>
+      <div class="block-time">21:30</div>
+    </div>
+    <div class="block-btns">
+      <button class="btn-d" onclick="setBlock('sleep','done')">✓</button>
+      <button class="btn-s" onclick="setBlock('sleep','skipped')">✗</button>
+    </div>
+  </div>
+
+  <div class="section-label">— Notes for today</div>
+  <textarea class="note-area" id="daily-note" placeholder="How did it go? What was hard? What did you learn?..." oninput="saveNote()"></textarea>
+
+  <button class="save-btn" onclick="saveDay()">LOCK IN TODAY</button>
+</div>
+
+<!-- SUMMARY VIEW -->
+<div class="view" id="view-summary">
+  <div class="sum-header">WEEK <span id="sum-week-num">1</span></div>
+  <div class="sum-week-label" id="sum-week-range"></div>
+
+  <div class="week-grid" id="week-grid"></div>
+
+  <div class="sum-stat-grid">
+    <div class="sum-stat">
+      <div class="sum-stat-num green" id="sum-days-perfect">0</div>
+      <div class="sum-stat-label">Perfect days</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num blue" id="sum-wme-q">0</div>
+      <div class="sum-stat-label">WME questions</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num amber" id="sum-gym-days">0</div>
+      <div class="sum-stat-label">Gym sessions</div>
+    </div>
+    <div class="sum-stat">
+      <div class="sum-stat-num red" id="sum-skips">0</div>
+      <div class="sum-stat-label">Blocks skipped</div>
+    </div>
+    <div class="sum-stat" style="grid-column: span 2">
+      <div class="sum-stat-num" style="color:var(--amber)" id="sum-protein">0g</div>
+      <div class="sum-stat-label">Total protein logged this week</div>
+    </div>
+  </div>
+
+  <div class="ai-summary-card" id="ai-card" style="display:none">
+    <div class="ai-sum-header">— Weekly intelligence report</div>
+    <div class="ai-sum-text" id="ai-text"></div>
+  </div>
+
+  <button class="gen-btn" id="gen-btn" onclick="generateSummary()">Generate weekly AI summary →</button>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+    <button class="gen-btn" onclick="exportWeekExcel()" style="color:var(--green);border-color:var(--green);">Export this week .xlsx ↓</button>
+    <button class="gen-btn" onclick="exportAllExcel()" style="color:var(--blue);border-color:var(--blue);">Export all data .xlsx ↓</button>
+  </div>
+</div>
+
+<!-- CALENDAR VIEW -->
+<div class="view" id="view-calendar">
+  <div style="padding:4px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <button onclick="calPrevMonth()" style="background:transparent;border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;">prev</button>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;" id="cal-title"></div>
+      <button onclick="calNextMonth()" style="background:transparent;border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:6px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;">next</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px;">
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">M</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">T</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">W</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">T</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">F</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">S</div>
+      <div style="text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;padding:4px 0;">S</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;" id="cal-grid"></div>
+    <div style="display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--green-dim);border:1px solid var(--green);"></div>80%+ logged
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--amber-dim);border:1px solid var(--amber);"></div>partial
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--red-dim);border:1px solid var(--red);"></div>logged but low
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:12px;height:12px;border-radius:3px;background:var(--surface);border:1px solid var(--border);"></div>not logged
+      </div>
+    </div>
+    <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;" id="cal-day-detail" style="display:none;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;" id="cal-detail-date"></div>
+      <div id="cal-detail-body" style="font-size:13px;color:var(--text);line-height:1.8;"></div>
+    </div>
+    <div style="margin-top:16px;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:10px;">— Discipline score</div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;" id="cal-stats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY VIEW -->
+<div class="view" id="view-history">
+  <div class="section-label" style="margin-top:4px">— Full log</div>
+  <div id="history-list"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BLOCKS = ['wake','wme1','gym','breakfast','wme2','wme3','lunch','walk1','wme4','walk2','dinner','wme5','plan','sleep'];
+const WME_BLOCKS = ['wme1','wme2','wme3','wme4','wme5'];
+const MEAL_BLOCKS = ['breakfast','lunch','dinner'];
+const BLOCK_NAMES = {
+  wake:'Wake ritual', wme1:'WME Block 1', gym:'Gym', breakfast:'Breakfast',
+  wme2:'WME Block 2', wme3:'WME Block 3', lunch:'Lunch', walk1:'Lunch walk',
+  wme4:'WME Block 4', walk2:'Evening walk', dinner:'Dinner', wme5:'WME Evening',
+  plan:'Evening planning', sleep:'Lights out'
+};
+
+const QUOTES = [
+  {t:"The man who moves a mountain begins by carrying away small stones.", a:"Confucius"},
+  {t:"You will never always be motivated. You have to learn to be disciplined.", a:"Unknown"},
+  {t:"Don't count the days. Make the days count.", a:"Muhammad Ali"},
+  {t:"Success is the sum of small efforts repeated day in and day out.", a:"Robert Collier"},
+  {t:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.", a:"Aristotle"},
+  {t:"The secret of getting ahead is getting started.", a:"Mark Twain"},
+  {t:"Hard choices, easy life. Easy choices, hard life.", a:"Jerzy Gregorek"},
+  {t:"You don't rise to the level of your goals. You fall to the level of your systems.", a:"James Clear"},
+  {t:"Suffer the pain of discipline or suffer the pain of regret.", a:"Jim Rohn"},
+  {t:"Discipline is choosing between what you want now and what you want most.", a:"Abraham Lincoln"},
+  {t:"Do something today that your future self will thank you for.", a:"Sean Patrick Flanery"},
+  {t:"Pain is temporary. Quitting lasts forever.", a:"Lance Armstrong"},
+  {t:"What you do every day matters more than what you do once in a while.", a:"Gretchen Rubin"},
+  {t:"Work hard in silence. Let success make the noise.", a:"Frank Ocean"},
+  {t:"Motivation gets you started. Habit keeps you going.", a:"Jim Ryun"},
+  {t:"Every day is a new opportunity to become better than yesterday.", a:"Unknown"},
+  {t:"Don't stop when you're tired. Stop when you're done.", a:"Unknown"},
+  {t:"The difference between ordinary and extraordinary is that little extra.", a:"Jimmy Johnson"},
+  {t:"Push yourself because no one else is going to do it for you.", a:"Unknown"},
+  {t:"Your future is created by what you do today, not tomorrow.", a:"Robert Kiyosaki"},
+  {t:"Discipline is the bridge between goals and accomplishment.", a:"Jim Rohn"},
+  {t:"It always seems impossible until it's done.", a:"Nelson Mandela"},
+  {t:"Be the person you needed when you were younger.", a:"Unknown"},
+  {t:"You are one decision away from a completely different life.", a:"Unknown"},
+  {t:"Average is a choice. Outlier is a commitment.", a:"Unknown"},
+  {t:"Stop outsourcing your identity to other people's opinions.", a:"Casey Zander"},
+  {t:"Your environment is your mind made visible.", a:"Unknown"},
+  {t:"Never use credit to fund lifestyle.", a:"Unknown"},
+  {t:"Compounding only works if you don't withdraw from the account.", a:"Elon Musk"},
+  {t:"The man who reads 30 minutes a day lives in a different cognitive universe.", a:"Unknown"}
+];
+
+function todayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function getState() {
+  const raw = localStorage.getItem('outlier_' + todayKey());
+  return raw ? JSON.parse(raw) : { blocks: {}, qcounts: {}, mealdata: {}, note: '', dateKey: todayKey() };
+}
+
+function saveState(st) {
+  localStorage.setItem('outlier_' + todayKey(), JSON.stringify(st));
+}
+
+function getAllDays() {
+  const days = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith('outlier_')) {
+      const date = k.replace('outlier_', '');
+      try { days.push({ date, data: JSON.parse(localStorage.getItem(k)) }); } catch(e) {}
+    }
+  }
+  return days.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function getThisWeekDays() {
+  const all = getAllDays();
+  const now = new Date();
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  monday.setHours(0, 0, 0, 0);
+  return all.filter(d => {
+    const parts = d.date.split('-');
+    const dd = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    return dd >= monday;
+  });
+}
+
+function calcStreak() {
+  const days = getAllDays();
+  let streak = 0;
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  let cursor = new Date(now);
+  for (const d of days) {
+    const parts = d.date.split('-');
+    const dd = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    const diff = Math.round((cursor - dd) / 86400000);
+    if (diff > 1) break;
+    const done = Object.values(d.data.blocks).filter(v => v === 'done').length;
+    if (done >= Math.floor(BLOCKS.length * 0.5)) { streak++; cursor = dd; }
+    else break;
+  }
+  return streak;
+}
+
+let todayState = getState();
+
+function setBlock(id, status) {
+  todayState = getState();
+  todayState.blocks[id] = todayState.blocks[id] === status ? null : status;
+  saveState(todayState);
+  renderToday();
+  if (todayState.blocks[id] === 'done') confetti();
+}
+
+function saveNote() {
+  todayState = getState();
+  todayState.note = document.getElementById('daily-note').value;
+  saveState(todayState);
+}
+
+function saveMealData() {
+  todayState = getState();
+  if (!todayState.mealdata) todayState.mealdata = {};
+  ['breakfast', 'lunch', 'dinner'].forEach(function(m) {
+    const el = document.getElementById(m + '-protein');
+    if (el) todayState.mealdata[m] = parseInt(el.value) || 0;
+  });
+  saveState(todayState);
+}
+
+function saveQCount() {
+  todayState = getState();
+  WME_BLOCKS.forEach(function(wb) {
+    const el = document.getElementById(wb + '-count');
+    if (el) todayState.qcounts[wb] = parseInt(el.value) || 0;
+  });
+  saveState(todayState);
+}
+
+function renderToday() {
+  todayState = getState();
+  const blocks = todayState.blocks;
+  let done = 0;
+  BLOCKS.forEach(function(id) {
+    const status = blocks[id] || 'none';
+    const row = document.getElementById('b-' + id);
+    const cb = document.getElementById('cb-' + id);
+    if (!row) return;
+    row.className = row.className.replace(/\s*(done|skipped)/g, '');
+    if (status === 'done') { row.classList.add('done'); cb.textContent = '\u2713'; done++; }
+    else if (status === 'skipped') { row.classList.add('skipped'); cb.textContent = '\u2717'; }
+    else { cb.textContent = '\u2014'; }
+    if (WME_BLOCKS.includes(id)) {
+      const qrow = document.getElementById(id + '-q');
+      if (qrow) qrow.style.display = status === 'done' ? 'flex' : 'none';
+      const qinput = document.getElementById(id + '-count');
+      if (qinput && todayState.qcounts && todayState.qcounts[id]) qinput.value = todayState.qcounts[id];
+    }
+  });
+  const pct = Math.round((done / BLOCKS.length) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('s-streak').textContent = calcStreak();
+  const wmeTotal = getAllDays().reduce(function(acc, d) {
+    return acc + WME_BLOCKS.filter(function(wb) { return d.data.blocks[wb] === 'done'; }).length;
+  }, 0);
+  document.getElementById('s-wme').textContent = wmeTotal;
+  const gymDaysWeek = getThisWeekDays().filter(function(d) { return d.data.blocks['gym'] === 'done'; }).length;
+  document.getElementById('s-gym').textContent = gymDaysWeek;
+  if (todayState.note) document.getElementById('daily-note').value = todayState.note;
+  ['breakfast', 'lunch', 'dinner'].forEach(function(m) {
+    const prow = document.getElementById(m + '-p');
+    const pinput = document.getElementById(m + '-protein');
+    if (prow) prow.style.display = (blocks[m] === 'done') ? 'flex' : 'none';
+    if (pinput && todayState.mealdata && todayState.mealdata[m]) pinput.value = todayState.mealdata[m];
+  });
+  const totalP = ['breakfast', 'lunch', 'dinner'].reduce(function(a, m) {
+    return a + ((todayState.mealdata && todayState.mealdata[m]) ? todayState.mealdata[m] : 0);
+  }, 0);
+  const protEl = document.getElementById('s-protein');
+  if (protEl) protEl.textContent = totalP + 'g';
+}
+
+function saveDay() {
+  todayState = getState();
+  todayState.savedAt = new Date().toISOString();
+  todayState.dateKey = todayKey();
+  saveState(todayState);
+  const done = Object.values(todayState.blocks).filter(function(v) { return v === 'done'; }).length;
+  const pct = Math.round((done / BLOCKS.length) * 100);
+  var msg = pct >= 80 ? 'Beast mode. ' + pct + '% locked in.' : pct >= 50 ? 'Day saved. ' + pct + '% done. Push more tomorrow.' : 'Saved. Tomorrow is a fresh start.';
+  showToast(msg);
+  if (pct === 100) confetti(true);
+}
+
+function confetti(big) {
+  const colors = ['#4ade80', '#60a5fa', '#fbbf24', '#a78bfa', '#f87171', '#f0ede8'];
+  const count = big ? 60 : 12;
+  for (let i = 0; i < count; i++) {
+    setTimeout(function() {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = 'left:' + (Math.random() * 100) + 'vw;top:0;background:' + colors[Math.floor(Math.random() * colors.length)] + ';animation-delay:' + (Math.random() * 0.5) + 's;animation-duration:' + (0.8 + Math.random() * 0.8) + 's;transform:rotate(' + (Math.random() * 360) + 'deg)';
+      document.body.appendChild(el);
+      setTimeout(function() { el.remove(); }, 2000);
+    }, i * 30);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3000);
+}
+
+function renderSummary() {
+  const weekDays = getThisWeekDays();
+  const now = new Date();
+  const dow = now.getDay() === 0 ? 6 : now.getDay() - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - dow);
+  monday.setHours(0, 0, 0, 0);
+  const weekNum = Math.ceil((Math.floor((now - new Date(now.getFullYear(), 0, 1)) / 86400000) + 1) / 7);
+  document.getElementById('sum-week-num').textContent = weekNum;
+  const fmt = function(d) { return d.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }); };
+  const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+  document.getElementById('sum-week-range').textContent = fmt(monday) + ' to ' + fmt(sunday);
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  const days7 = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+    const key = y + '-' + mo + '-' + da;
+    const raw = localStorage.getItem('outlier_' + key);
+    const dot = document.createElement('div');
+    dot.className = 'day-dot';
+    if (raw) {
+      const data = JSON.parse(raw);
+      const doneCount = Object.values(data.blocks).filter(function(v) { return v === 'done'; }).length;
+      const p = doneCount / BLOCKS.length;
+      dot.classList.add(p >= 0.8 ? 'full' : p >= 0.4 ? 'partial' : 'miss');
+      dot.innerHTML = '<span>' + days7[i] + '</span><span class="day-dot-label">' + Math.round(p * 100) + '%</span>';
+    } else {
+      dot.innerHTML = '<span>' + days7[i] + '</span><span class="day-dot-label">--</span>';
+    }
+    grid.appendChild(dot);
+  }
+  let totalQ = 0, gymDays = 0, skips = 0, perfectDays = 0;
+  weekDays.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    skips += Object.values(d.data.blocks).filter(function(v) { return v === 'skipped'; }).length;
+    if (doneCount / BLOCKS.length >= 0.9) perfectDays++;
+    WME_BLOCKS.forEach(function(wb) { totalQ += (d.data.qcounts && d.data.qcounts[wb]) ? parseInt(d.data.qcounts[wb]) : 0; });
+    if (d.data.blocks['gym'] === 'done') gymDays++;
+  });
+  document.getElementById('sum-days-perfect').textContent = perfectDays;
+  document.getElementById('sum-wme-q').textContent = totalQ;
+  document.getElementById('sum-gym-days').textContent = gymDays;
+  document.getElementById('sum-skips').textContent = skips;
+  const totalProt = weekDays.reduce(function(a, d) {
+    return a + ['breakfast','lunch','dinner'].reduce(function(b, m) {
+      return b + ((d.data.mealdata && d.data.mealdata[m]) ? d.data.mealdata[m] : 0);
+    }, 0);
+  }, 0);
+  const protEl = document.getElementById('sum-protein');
+  if (protEl) protEl.textContent = totalProt + 'g';
+}
+
+function generateSummary() {
+  const btn = document.getElementById('gen-btn');
+  const weekDays = getThisWeekDays();
+  let totalQ = 0, gymDays = 0, skips = 0, perfectDays = 0;
+  const skippedBlocks = {};
+  const notes = [];
+  weekDays.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    skips += Object.values(d.data.blocks).filter(function(v) { return v === 'skipped'; }).length;
+    if (doneCount / BLOCKS.length >= 0.9) perfectDays++;
+    WME_BLOCKS.forEach(function(wb) { totalQ += (d.data.qcounts && d.data.qcounts[wb]) ? parseInt(d.data.qcounts[wb]) : 0; });
+    if (d.data.blocks['gym'] === 'done') gymDays++;
+    Object.keys(d.data.blocks).forEach(function(k) {
+      if (d.data.blocks[k] === 'skipped') skippedBlocks[k] = (skippedBlocks[k] || 0) + 1;
+    });
+    if (d.data.note) notes.push(d.date + ': ' + d.data.note);
+  });
+  const mostSkipped = Object.keys(skippedBlocks).sort(function(a,b){ return skippedBlocks[b]-skippedBlocks[a]; }).slice(0,2).map(function(k){ return BLOCK_NAMES[k] + ' (' + skippedBlocks[k] + 'x)'; }).join(', ') || 'none';
+  const avgP = Math.round(weekDays.reduce(function(a,d){ return a + ['breakfast','lunch','dinner'].reduce(function(b,m){ return b+((d.data.mealdata&&d.data.mealdata[m])?d.data.mealdata[m]:0);},0);},0) / Math.max(weekDays.length,1));
+  const wins = [];
+  if (gymDays >= 5) wins.push('Gym ' + gymDays + '/7 sessions — serious consistency');
+  else if (gymDays >= 3) wins.push('Gym ' + gymDays + ' days — showing up when it counts');
+  if (perfectDays >= 3) wins.push(perfectDays + ' perfect days — compound momentum building');
+  if (totalQ >= 100) wins.push(totalQ + ' WME questions — you are in the reps');
+  else if (totalQ >= 40) wins.push(totalQ + ' WME questions done this week');
+  if (avgP >= 120) wins.push('Protein averaging ' + avgP + 'g — fuelling the machine');
+  if (weekDays.length >= 5) wins.push(weekDays.length + ' days logged — the habit is forming');
+  if (notes.length >= 3) wins.push('Daily reflection active — self-awareness compounding');
+  const wellText = wins.length > 0 ? wins.slice(0,2).join('. ') + '.' : 'First data in the system. Every block logged is a deposit into your future.';
+  const gaps = [];
+  if (gymDays < 4) gaps.push('Gym at ' + gymDays + '/7 — target 5 minimum');
+  if (totalQ < 40) gaps.push('WME questions at ' + totalQ + ' — need 40+ per session every session');
+  if (skips > 6) gaps.push(skips + ' blocks skipped — skips are withdrawn time');
+  if (avgP > 0 && avgP < 100) gaps.push('Protein at ' + avgP + 'g avg — push toward 150g+');
+  if (mostSkipped !== 'none') gaps.push('Pattern skip: ' + mostSkipped);
+  if (perfectDays === 0) gaps.push('No perfect days yet — one perfect day this week is the target');
+  const improveText = gaps.length > 0 ? gaps.slice(0,2).join('. ') + '.' : 'Solid foundation. Raise the floor now — fewer skips, more complete days.';
+  var focusText = '';
+  if (totalQ < 100) focusText = 'Hit 40 WME questions minimum every single study session — no exceptions.';
+  else if (gymDays < 5) focusText = 'Get to gym 5 days — pre-commit tonight by writing which days and what time.';
+  else if (skips > 5) focusText = 'Cut skips in half — decide the night before, not in the moment.';
+  else focusText = 'Stack one more perfect day — all blocks done, notes written, locked in by 21:30.';
+  document.getElementById('ai-text').innerHTML =
+    '<span class="win">WHAT WENT WELL:</span> ' + wellText + '<br><br>' +
+    '<span class="improve">WHAT TO IMPROVE:</span> ' + improveText + '<br><br>' +
+    '<span class="focus">THIS WEEKS FOCUS:</span> ' + focusText;
+  document.getElementById('ai-card').style.display = 'block';
+  btn.textContent = 'Refresh summary';
+  confetti();
+}
+
+function renderHistory() {
+  const all = getAllDays();
+  const list = document.getElementById('history-list');
+  if (!all.length) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">o</div>No days logged yet. Start today.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  all.forEach(function(d) {
+    const doneCount = Object.values(d.data.blocks).filter(function(v) { return v === 'done'; }).length;
+    const pct = Math.round((doneCount / BLOCKS.length) * 100);
+    const color = pct >= 80 ? 'green' : pct >= 50 ? 'amber' : 'red';
+    const parts = d.date.split('-');
+    const dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    const dateStr = dateObj.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+    const chips = BLOCKS.map(function(id) {
+      const st = d.data.blocks[id];
+      if (!st) return '';
+      return '<span class="hist-chip ' + (st === 'done' ? 'done' : 'skip') + '">' + BLOCK_NAMES[id].split(' ')[0] + '</span>';
+    }).join('');
+    const qTotal = WME_BLOCKS.reduce(function(a,wb){ return a+((d.data.qcounts&&d.data.qcounts[wb])?parseInt(d.data.qcounts[wb]):0);},0);
+    const noteSnip = d.data.note ? '<div style="margin-top:6px;font-size:12px;color:var(--muted);font-style:italic">"' + d.data.note.slice(0,100) + (d.data.note.length>100?'...':'') + '"</div>' : '';
+    const qLine = qTotal > 0 ? '<div style="margin-top:6px;font-size:11px;color:var(--blue);font-family:DM Mono,monospace">' + qTotal + ' WME questions</div>' : '';
+    list.innerHTML += '<div class="hist-day"><div class="hist-day-header"><div class="hist-date">' + dateStr + '</div><div class="hist-score ' + color + '">' + pct + '%</div></div><div class="hist-blocks">' + chips + '</div>' + qLine + noteSnip + '</div>';
+  });
+}
+
+function showView(v, evt) {
+  document.querySelectorAll('.view').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.nav-tab').forEach(function(el) { el.classList.remove('active'); });
+  document.getElementById('view-' + v).classList.add('active');
+  if (evt && evt.target) evt.target.classList.add('active');
+  if (v === 'summary') renderSummary();
+  if (v === 'history') renderHistory();
+  if (v === 'calendar') renderCalendar();
+}
+
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+
+function localKey(y, m, d) {
+  return y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+}
+
+function getDayData(dateStr) {
+  var raw = localStorage.getItem('outlier_' + dateStr);
+  return raw ? JSON.parse(raw) : null;
+}
+
+function dayScore(data) {
+  if (!data) return -1;
+  var done = Object.values(data.blocks).filter(function(v){ return v === 'done'; }).length;
+  return Math.round((done / BLOCKS.length) * 100);
+}
+
+function renderCalendar() {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-title').textContent = months[calMonth] + ' ' + calYear;
+  var grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  var firstDay = new Date(calYear, calMonth, 1).getDay();
+  var startOffset = firstDay === 0 ? 6 : firstDay - 1;
+  var daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  var todayStr = todayKey();
+  for (var i = 0; i < startOffset; i++) {
+    var empty = document.createElement('div');
+    empty.style.cssText = 'aspect-ratio:1;';
+    grid.appendChild(empty);
+  }
+  for (var d = 1; d <= daysInMonth; d++) {
+    var key = localKey(calYear, calMonth, d);
+    var data = getDayData(key);
+    var score = dayScore(data);
+    var cell = document.createElement('div');
+    var isToday = key === todayStr;
+    var isFuture = key > todayStr;
+    var bg, border, textCol;
+    if (isFuture) {
+      bg = 'transparent'; border = 'var(--border)'; textCol = 'var(--dim)';
+    } else if (score >= 80) {
+      bg = 'var(--green-dim)'; border = 'var(--green)'; textCol = 'var(--green)';
+    } else if (score >= 40) {
+      bg = 'var(--amber-dim)'; border = 'var(--amber)'; textCol = 'var(--amber)';
+    } else if (score >= 0) {
+      bg = 'var(--red-dim)'; border = 'var(--red)'; textCol = 'var(--red)';
+    } else {
+      bg = 'var(--surface)'; border = 'var(--border)'; textCol = 'var(--muted)';
+    }
+    var todayRing = isToday ? ';outline:2px solid var(--text);outline-offset:2px' : '';
+    cell.style.cssText = 'aspect-ratio:1;border-radius:5px;background:' + bg + ';border:1px solid ' + border + ';display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s' + todayRing;
+    cell.innerHTML = '<span style="font-size:11px;font-family:DM Mono,monospace;color:' + textCol + ';font-weight:500;">' + d + '</span>' + (score >= 0 ? '<span style="font-size:9px;color:' + textCol + ';opacity:.7;">' + score + '%</span>' : '');
+    cell.onclick = (function(k, sc, dt) {
+      return function() { showCalDetail(k, sc, dt); };
+    })(key, score, data);
+    grid.appendChild(cell);
+  }
+  renderCalStats();
+}
+
+function showCalDetail(key, score, data) {
+  var parts = key.split('-');
+  var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var monNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('cal-detail-date').textContent = dayNames[dateObj.getDay()] + ' ' + monNames[dateObj.getMonth()] + ' ' + parts[2] + ' ' + parts[0];
+  var body = document.getElementById('cal-detail-body');
+  if (!data || score < 0) {
+    body.innerHTML = '<span style="color:var(--muted)">No data logged for this day.</span>';
+  } else {
+    var doneBlocks = [], skippedBlocks = [], missedBlocks = [];
+    BLOCKS.forEach(function(id) {
+      var st = data.blocks[id];
+      if (st === 'done') doneBlocks.push(BLOCK_NAMES[id]);
+      else if (st === 'skipped') skippedBlocks.push(BLOCK_NAMES[id]);
+      else missedBlocks.push(BLOCK_NAMES[id]);
+    });
+    var wmeQ = WME_BLOCKS.reduce(function(a,wb){ return a+((data.qcounts&&data.qcounts[wb])?parseInt(data.qcounts[wb]):0);},0);
+    var prot = ['breakfast','lunch','dinner'].reduce(function(a,m){ return a+((data.mealdata&&data.mealdata[m])?data.mealdata[m]:0);},0);
+    var html = '<div style="margin-bottom:8px;"><span style="color:var(--green);font-size:22px;font-family:Bebas Neue,sans-serif;letter-spacing:1px;">' + score + '%</span> <span style="color:var(--muted);font-size:11px;">completion</span></div>';
+    if (doneBlocks.length) html += '<div style="margin-bottom:6px;font-size:12px;"><span style="color:var(--green);">done: </span>' + doneBlocks.join(', ') + '</div>';
+    if (skippedBlocks.length) html += '<div style="margin-bottom:6px;font-size:12px;"><span style="color:var(--red);">skipped: </span>' + skippedBlocks.join(', ') + '</div>';
+    if (wmeQ > 0) html += '<div style="margin-bottom:6px;font-size:12px;color:var(--blue);">' + wmeQ + ' WME questions</div>';
+    if (prot > 0) html += '<div style="margin-bottom:6px;font-size:12px;color:var(--amber);">' + prot + 'g protein</div>';
+    if (data.note) html += '<div style="margin-top:8px;font-size:12px;color:var(--muted);font-style:italic;border-top:1px solid var(--border);padding-top:8px;">"' + data.note + '"</div>';
+    body.innerHTML = html;
+  }
+  document.getElementById('cal-day-detail').style.display = 'block';
+}
+
+function renderCalStats() {
+  var statsEl = document.getElementById('cal-stats');
+  if (!statsEl) return;
+  var now = new Date();
+  var allDays = getAllDays();
+  var totalLogged = 0, totalPerfect = 0, totalDays = 0;
+  var longestStreak = 0, currentStreak = 0;
+  var sorted = allDays.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+  var prevDate = null;
+  sorted.forEach(function(d) {
+    totalDays++;
+    var score = dayScore(d.data);
+    if (score >= 0) totalLogged++;
+    if (score >= 80) {
+      totalPerfect++;
+      if (prevDate) {
+        var parts1 = prevDate.split('-'), parts2 = d.date.split('-');
+        var d1 = new Date(parseInt(parts1[0]),parseInt(parts1[1])-1,parseInt(parts1[2]));
+        var d2 = new Date(parseInt(parts2[0]),parseInt(parts2[1])-1,parseInt(parts2[2]));
+        var diff = Math.round((d2-d1)/86400000);
+        if (diff === 1) { currentStreak++; } else { currentStreak = 1; }
+      } else { currentStreak = 1; }
+      if (currentStreak > longestStreak) longestStreak = currentStreak;
+      prevDate = d.date;
+    } else {
+      currentStreak = 0;
+      prevDate = null;
+    }
+  });
+  var consistency = totalDays > 0 ? Math.round((totalLogged/totalDays)*100) : 0;
+  statsEl.innerHTML =
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--green);">' + totalLogged + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">days logged</div>' +
+    '</div>' +
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--amber);">' + longestStreak + '</div>' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">best streak</div>' +
+    '</div>' +
+    '<div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;">' +
+      '<div style="font-family:Bebas Neue,sans-serif;font-size:28px;color:var(--blue);">' + consistency + '%</div>' +
+      '<div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">consistency</div>' +
+    '</div>';
+}
+
+function calPrevMonth() {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar();
+}
+
+function calNextMonth() {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendar();
+}
+
+function renderYesterday() {
+  var now = new Date();
+  var yest = new Date(now);
+  yest.setDate(now.getDate() - 1);
+  var yKey = yest.getFullYear() + '-' + String(yest.getMonth()+1).padStart(2,'0') + '-' + String(yest.getDate()).padStart(2,'0');
+  var data = getDayData(yKey);
+  var card = document.getElementById('yesterday-card');
+  var body = document.getElementById('ycard-body');
+  var dateEl = document.getElementById('ycard-date');
+  var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var monNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  dateEl.textContent = '— Yesterday: ' + dayNames[yest.getDay()] + ' ' + monNames[yest.getMonth()] + ' ' + yest.getDate();
+  if (!data) {
+    body.innerHTML = '<span style="color:var(--red);">No data logged yesterday. That day is gone — make today count.</span>';
+    card.style.display = 'block';
+    return;
+  }
+  var score = dayScore(data);
+  var gymDone = data.blocks['gym'] === 'done';
+  var wmeBlocks = WME_BLOCKS.filter(function(wb){ return data.blocks[wb] === 'done'; }).length;
+  var totalMeals = ['breakfast','lunch','dinner'].filter(function(m){ return data.blocks[m] === 'done'; }).length;
+  var prot = ['breakfast','lunch','dinner'].reduce(function(a,m){ return a+((data.mealdata&&data.mealdata[m])?data.mealdata[m]:0);},0);
+  var skips = Object.values(data.blocks).filter(function(v){ return v === 'skipped'; }).length;
+  var color = score >= 80 ? 'var(--green)' : score >= 50 ? 'var(--amber)' : 'var(--red)';
+  var verdict = score >= 80 ? 'Strong day. Build on it.' : score >= 50 ? 'Partial day. What got skipped needs attention today.' : 'Low day. Restart without excuses.';
+  var html = '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;">';
+  html += '<span style="font-family:Bebas Neue,sans-serif;font-size:32px;color:' + color + ';">' + score + '%</span>';
+  html += '<span style="font-size:12px;color:var(--muted);">' + verdict + '</span></div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
+  html += '<div style="font-size:12px;color:' + (gymDone?'var(--green)':'var(--red)') + ';">' + (gymDone ? 'Gym: done' : 'Gym: missed') + '</div>';
+  html += '<div style="font-size:12px;color:' + (wmeBlocks>=3?'var(--green)':wmeBlocks>=1?'var(--amber)':'var(--red)') + ';">WME: ' + wmeBlocks + '/5 blocks</div>';
+  html += '<div style="font-size:12px;color:' + (totalMeals>=3?'var(--green)':totalMeals>=2?'var(--amber)':'var(--red)') + ';">Meals: ' + totalMeals + '/3 logged</div>';
+  html += '<div style="font-size:12px;color:' + (prot>=120?'var(--green)':prot>0?'var(--amber)':'var(--muted)') + ';">Protein: ' + (prot>0?prot+'g':'not logged') + '</div>';
+  if (skips > 0) html += '<div style="font-size:12px;color:var(--red);grid-column:span 2;">' + skips + ' block' + (skips>1?'s':'') + ' skipped — fix the pattern today</div>';
+  html += '</div>';
+  if (data.note) html += '<div style="margin-top:8px;font-size:12px;color:var(--muted);font-style:italic;border-top:1px solid var(--border);padding-top:8px;">"' + data.note + '"</div>';
+  body.innerHTML = html;
+  card.style.display = 'block';
+}
+
+function buildRowsFromDays(days) {
+  var rows = [];
+  var header = [
+    'Date', 'Day', 'Completion %',
+    'Wake Ritual', 'WME Block 1', 'Gym', 'Breakfast', 'WME Block 2', 'WME Block 3',
+    'Lunch', 'Post-Lunch Walk', 'WME Block 4', 'Evening Walk', 'Dinner',
+    'WME Evening', 'Evening Planning', 'Lights Out',
+    'WME Questions Total', 'Breakfast Protein (g)', 'Lunch Protein (g)', 'Dinner Protein (g)', 'Total Protein (g)',
+    'Blocks Done', 'Blocks Skipped', 'Blocks Missed',
+    'Notes'
+  ];
+  rows.push(header);
+  var dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  days.forEach(function(d) {
+    var parts = d.date.split('-');
+    var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    var blk = d.data.blocks || {};
+    var qc = d.data.qcounts || {};
+    var md = d.data.mealdata || {};
+    var totalQ = WME_BLOCKS.reduce(function(a,wb){ return a+(qc[wb]?parseInt(qc[wb]):0);},0);
+    var bfProt = md['breakfast']||0;
+    var luProt = md['lunch']||0;
+    var diProt = md['dinner']||0;
+    var totalProt = bfProt+luProt+diProt;
+    var done = 0, skipped = 0, missed = 0;
+    BLOCKS.forEach(function(id){
+      if (blk[id]==='done') done++;
+      else if (blk[id]==='skipped') skipped++;
+      else missed++;
+    });
+    var pct = Math.round((done/BLOCKS.length)*100);
+    function st(id){ return blk[id]==='done'?'Done':blk[id]==='skipped'?'Skipped':'Missed'; }
+    rows.push([
+      d.date,
+      dayNames[dateObj.getDay()],
+      pct,
+      st('wake'), st('wme1'), st('gym'), st('breakfast'), st('wme2'), st('wme3'),
+      st('lunch'), st('walk1'), st('wme4'), st('walk2'), st('dinner'),
+      st('wme5'), st('plan'), st('sleep'),
+      totalQ, bfProt, luProt, diProt, totalProt,
+      done, skipped, missed,
+      d.data.note||''
+    ]);
+  });
+  return rows;
+}
+
+function buildWeeklySummarySheet(days) {
+  var weeks = {};
+  days.forEach(function(d) {
+    var parts = d.date.split('-');
+    var dateObj = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+    var dow = dateObj.getDay()===0?6:dateObj.getDay()-1;
+    var mon = new Date(dateObj); mon.setDate(dateObj.getDate()-dow);
+    var wk = mon.getFullYear()+'-'+String(mon.getMonth()+1).padStart(2,'0')+'-'+String(mon.getDate()).padStart(2,'0');
+    if (!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(d);
+  });
+  var rows = [['Week Starting','Days Logged','Perfect Days (80%+)','Gym Sessions','Total WME Questions','Total Protein (g)','Total Skips','Avg Completion %','Notes']];
+  Object.keys(weeks).sort().forEach(function(wk) {
+    var wdays = weeks[wk];
+    var gymDays=0, totalQ=0, totalProt=0, totalSkips=0, totalPct=0, perfect=0;
+    var notes = [];
+    wdays.forEach(function(d) {
+      var blk = d.data.blocks||{};
+      var qc = d.data.qcounts||{};
+      var md = d.data.mealdata||{};
+      var done = Object.values(blk).filter(function(v){return v==='done';}).length;
+      var skip = Object.values(blk).filter(function(v){return v==='skipped';}).length;
+      var pct = Math.round((done/BLOCKS.length)*100);
+      totalPct+=pct; totalSkips+=skip;
+      if (pct>=80) perfect++;
+      if (blk['gym']==='done') gymDays++;
+      WME_BLOCKS.forEach(function(wb){totalQ+=(qc[wb]?parseInt(qc[wb]):0);});
+      totalProt+=(['breakfast','lunch','dinner'].reduce(function(a,m){return a+(md[m]?md[m]:0);},0));
+      if (d.data.note) notes.push(d.date+': '+d.data.note);
+    });
+    rows.push([
+      wk, wdays.length, perfect, gymDays, totalQ, totalProt, totalSkips,
+      wdays.length>0?Math.round(totalPct/wdays.length):0,
+      notes.join(' | ')
+    ]);
+  });
+  return rows;
+}
+
+function applyExcelStyles(ws, headerRow) {
+  var range = XLSX.utils.decode_range(ws['!ref']);
+  for (var C = range.s.c; C <= range.e.c; C++) {
+    var cell = ws[XLSX.utils.encode_cell({r:0,c:C})];
+    if (cell) {
+      cell.s = {
+        font: { bold: true, color: { rgb: 'FFFFFF' } },
+        fill: { fgColor: { rgb: '0A0A0A' } },
+        alignment: { horizontal: 'center' }
+      };
+    }
+  }
+  for (var R = 1; R <= range.e.r; R++) {
+    for (var C2 = range.s.c; C2 <= range.e.c; C2++) {
+      var addr = XLSX.utils.encode_cell({r:R,c:C2});
+      var c = ws[addr];
+      if (!c) continue;
+      if (c.v === 'Done') c.s = { font: { color: { rgb: '22C55E' } } };
+      else if (c.v === 'Skipped') c.s = { font: { color: { rgb: 'F87171' } } };
+      else if (c.v === 'Missed') c.s = { font: { color: { rgb: '666666' } } };
+    }
+  }
+}
+
+function exportWeekExcel() {
+  var days = getThisWeekDays().sort(function(a,b){return a.date.localeCompare(b.date);});
+  if (!days.length) { showToast('No data this week yet'); return; }
+  var wb = XLSX.utils.book_new();
+  var dailyRows = buildRowsFromDays(days);
+  var ws1 = XLSX.utils.aoa_to_sheet(dailyRows);
+  ws1['!cols'] = [{wch:12},{wch:10},{wch:14},{wch:12},{wch:14},{wch:8},{wch:12},{wch:14},{wch:14},{wch:8},{wch:16},{wch:14},{wch:14},{wch:8},{wch:14},{wch:18},{wch:12},{wch:20},{wch:20},{wch:20},{wch:20},{wch:16},{wch:12},{wch:14},{wch:12},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Daily Log');
+  var summaryRows = buildWeeklySummarySheet(days);
+  var ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws2['!cols'] = [{wch:14},{wch:12},{wch:18},{wch:16},{wch:22},{wch:18},{wch:14},{wch:18},{wch:50}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Week Summary');
+  var now = new Date();
+  var fname = 'OUTLIER_Week_' + now.getFullYear() + '_W' + String(Math.ceil(now.getDate()/7)).padStart(2,'0') + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  showToast('Week exported to ' + fname);
+}
+
+function exportAllExcel() {
+  var days = getAllDays().sort(function(a,b){return a.date.localeCompare(b.date);});
+  if (!days.length) { showToast('No data logged yet'); return; }
+  var wb = XLSX.utils.book_new();
+  var dailyRows = buildRowsFromDays(days);
+  var ws1 = XLSX.utils.aoa_to_sheet(dailyRows);
+  ws1['!cols'] = [{wch:12},{wch:10},{wch:14},{wch:12},{wch:14},{wch:8},{wch:12},{wch:14},{wch:14},{wch:8},{wch:16},{wch:14},{wch:14},{wch:8},{wch:14},{wch:18},{wch:12},{wch:20},{wch:20},{wch:20},{wch:20},{wch:16},{wch:12},{wch:14},{wch:12},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'All Days');
+  var summaryRows = buildWeeklySummarySheet(days);
+  var ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws2['!cols'] = [{wch:14},{wch:12},{wch:18},{wch:16},{wch:22},{wch:18},{wch:14},{wch:18},{wch:50}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Weekly Summaries');
+  var wmeRows = [['Date','WME Block 1','WME Block 2','WME Block 3','WME Block 4','WME Evening','Total Questions','Status']];
+  days.forEach(function(d) {
+    var blk = d.data.blocks||{};
+    var qc = d.data.qcounts||{};
+    var totalQ = WME_BLOCKS.reduce(function(a,wb){return a+(qc[wb]?parseInt(qc[wb]):0);},0);
+    var wmeDone = WME_BLOCKS.filter(function(wb){return blk[wb]==='done';}).length;
+    wmeRows.push([
+      d.date,
+      blk['wme1']||'Missed', blk['wme2']||'Missed', blk['wme3']||'Missed',
+      blk['wme4']||'Missed', blk['wme5']||'Missed',
+      totalQ,
+      wmeDone>=4?'Strong':wmeDone>=2?'Partial':'Low'
+    ]);
+  });
+  var ws3 = XLSX.utils.aoa_to_sheet(wmeRows);
+  ws3['!cols'] = [{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws3, 'WME Tracker');
+  var nutritionRows = [['Date','Breakfast','Breakfast Protein (g)','Lunch','Lunch Protein (g)','Dinner','Dinner Protein (g)','Total Protein (g)']];
+  days.forEach(function(d) {
+    var blk = d.data.blocks||{};
+    var md = d.data.mealdata||{};
+    nutritionRows.push([
+      d.date,
+      blk['breakfast']||'Missed', md['breakfast']||0,
+      blk['lunch']||'Missed', md['lunch']||0,
+      blk['dinner']||'Missed', md['dinner']||0,
+      (md['breakfast']||0)+(md['lunch']||0)+(md['dinner']||0)
+    ]);
+  });
+  var ws4 = XLSX.utils.aoa_to_sheet(nutritionRows);
+  ws4['!cols'] = [{wch:12},{wch:12},{wch:20},{wch:8},{wch:20},{wch:8},{wch:20},{wch:18}];
+  XLSX.utils.book_append_sheet(wb, ws4, 'Nutrition');
+  var gymRows = [['Date','Gym','Day of Week','Week Number']];
+  var dayNames2 = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  days.forEach(function(d) {
+    var parts = d.date.split('-');
+    var dateObj = new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+    var wk = Math.ceil(dateObj.getDate()/7);
+    gymRows.push([d.date, d.data.blocks['gym']==='done'?'Done':'Missed', dayNames2[dateObj.getDay()], wk]);
+  });
+  var ws5 = XLSX.utils.aoa_to_sheet(gymRows);
+  ws5['!cols'] = [{wch:12},{wch:8},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws5, 'Gym Tracker');
+  var fname = 'OUTLIER_AllData_' + new Date().toISOString().split('T')[0] + '.xlsx';
+  XLSX.writeFile(wb, fname);
+  showToast('All data exported to ' + fname);
+}
+
+function init() {
+  var now = new Date();
+  var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var monNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('nav-date').textContent = dayNames[now.getDay()] + ', ' + monNames[now.getMonth()] + ' ' + now.getDate();
+  var qIndex = now.getDate() % QUOTES.length;
+  document.getElementById('q-text').textContent = QUOTES[qIndex].t;
+  document.getElementById('q-author').textContent = '-- ' + QUOTES[qIndex].a;
+  renderToday();
+  renderYesterday();
+}
+
+init();
+</script>
+</body>
+</html>
